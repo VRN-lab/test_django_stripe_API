@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Item</title>
+    <script src="https://js.stripe.com/v3/"></script>
+</head>
+<body>
+    <h1>{{ item.name }}</h1>
+    <p>{{ item.description }}</p>
+    <p>Price: {{ item.price }}</p>
+    <button id="buyButton">Купить</button>
+
+    <script>
+        var stripe = Stripe('pk_test_51OHt0TImMsnuGNDa3xgwebmssiPBwjQi4GCn92T8lyrujPjZS5PemxTKSlBZ2y06MC90yn9dAAMfsgAujm54yFe700KFndpWUB');
+
+        document.getElementById('buyButton').addEventListener('click', function() {
+            fetch('/buy/{{ item.id }}/')
+                .then(function(response) {
+                    return response.json();
+                })
+                .then(function(session) {
+                    return stripe.redirectToCheckout({ sessionId: session.session_id });
+                })
+                .then(function(result) {
+                    if (result.error) {
+                        alert(result.error.message);
+                    }
+                })
+                .catch(function(error) {
+                    console.error('Error:', error);
+                });
+        });
+    </script>
+</body>
+</html>

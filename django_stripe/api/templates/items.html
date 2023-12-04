@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Items</title>
+    <script src="https://js.stripe.com/v3/"></script>
+</head>
+<body>
+    {% for item in items %}
+        <h1>{{ item.name }}</h1>
+        <p>{{ item.description }}</p>
+        <p>Price: {{ item.price }}</p>
+        <button class="buyButton" data-id="{{ item.id }}">Купить</button>
+    {% endfor %}
+
+    <script>
+        var stripe = Stripe('pk_test_51OHt0TImMsnuGNDa3xgwebmssiPBwjQi4GCn92T8lyrujPjZS5PemxTKSlBZ2y06MC90yn9dAAMfsgAujm54yFe700KFndpWUB');
+
+        var buttons = document.getElementsByClassName('buyButton');
+        for (var i = 0; i < buttons.length; i++) {
+            buttons[i].addEventListener('click', function() {
+                var itemId = this.getAttribute('data-id');
+                fetch('/buy/' + itemId + '/')
+                    .then(function(response) {
+                        return response.json();
+                    })
+                    .then(function(session) {
+                        return stripe.redirectToCheckout({ sessionId: session.session_id });
+                    })
+                    .then(function(result) {
+                        if (result.error) {
+                            alert(result.error.message);
+                        }
+                    })
+                    .catch(function(error) {
+                        console.error('Error:', error);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>
